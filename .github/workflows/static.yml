@@ -1,65 +1,43 @@
-# static.yml - Configuration for NotCrazyHub Scripts static website
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
 
-site:
-  name: "ShxDrag Scripts"
-  description: "Free Roblox Adopt Me Scripts for 2025"
-  baseUrl: "/"
-  language: "en"
-  theme: "dark"
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
 
-build:
-  outputDir: "./dist"
-  cleanUrls: true
-  prettyUrls: true
-  trailingSlash: false
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
-routes:
-  - from: /(.*)
-    to: /index.html
-    status: 200
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
-headers:
-  - source: /(.*)
-    headers:
-      - key: Cache-Control
-        value: "public, max-age=3600"
-      - key: X-Frame-Options
-        value: "DENY"
-      - key: X-Content-Type-Options
-        value: "nosniff"
-      - key: Referrer-Policy
-        value: "strict-origin-when-cross-origin"
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
-redirects:
-  - from: /old-scripts
-    to: /
-    status: 301
-
-optimization:
-  minify: true
-  bundle: true
-  preload: true
-  inlineCriticalCSS: true
-
-features:
-  serviceWorker: true
-  manifest: true
-  sitemap: true
-
-security:
-  contentSecurityPolicy: |
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' https://www.youtube.com;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' data: https://img.youtube.com;
-    font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self';
-    frame-src https://www.youtube.com;
-
-environment:
-  production:
-    baseUrl: "https://notcrazyhub.example.com"
-    analytics:
-      google: "UA-XXXXX-Y"
-  development:
-    baseUrl: "http://localhost:8080"
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
